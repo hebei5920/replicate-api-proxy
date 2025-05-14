@@ -14,9 +14,9 @@ addEventListener('fetch', event => {
   } else {
     // 处理其他请求方法
     event.respondWith(
-      new Response('此代理仅支持 POST 请求', { 
+      new Response('此代理仅支持 POST 请求', {
         status: 405,
-        headers: corsHeaders 
+        headers: corsHeaders
       })
     );
   }
@@ -44,15 +44,15 @@ async function handleApiRequest(request) {
     // 检查是否设置了 API Token
     if (!REPLICATE_API_TOKEN) {
       return new Response(
-        JSON.stringify({ 
-          error: 'API Token 未配置。请在 Cloudflare Worker 中设置 REPLICATE_API_TOKEN 环境变量。' 
+        JSON.stringify({
+          error: 'API Token 未配置。请在 Cloudflare Worker 中设置 REPLICATE_API_TOKEN 环境变量。'
         }),
-        { 
-          status: 500, 
-          headers: { 
+        {
+          status: 500,
+          headers: {
             'Content-Type': 'application/json',
-            ...corsHeaders 
-          } 
+            ...corsHeaders
+          }
         }
       );
     }
@@ -64,22 +64,36 @@ async function handleApiRequest(request) {
     } catch (error) {
       return new Response(
         JSON.stringify({ error: '无效的请求数据。请提供有效的 JSON 格式。' }),
-        { 
-          status: 400, 
-          headers: { 
+        {
+          status: 400,
+          headers: {
             'Content-Type': 'application/json',
-            ...corsHeaders 
-          } 
+            ...corsHeaders
+          }
+        }
+      );
+    }
+
+    // 检查请求中是否包含必要的base64图像数据
+    if (!requestData.input || !requestData.input.source_image || !requestData.input.target_image) {
+      return new Response(
+        JSON.stringify({ error: '请求数据不完整。需要提供source_image和target_image的base64编码。' }),
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders
+          }
         }
       );
     }
 
     // 创建请求头
     const headers = {
-      'Authorization': `Bearer ${REPLICATE_API_TOKEN}`,
+      'Authorization': `Bearer r8_OI1uZs9HKgTmsNqbNysYR8GLqlgJxi32ja5T5`,
       'Content-Type': 'application/json'
     };
-    
+
     // 添加 Prefer 头 (如果需要)
     if (requestData.prefer === 'wait' || requestData.wait) {
       headers['Prefer'] = 'wait';
@@ -88,12 +102,21 @@ async function handleApiRequest(request) {
       delete requestData.wait;
     }
 
+    // 准备发送到Replicate API的请求体
+    const apiRequestBody = {
+      version: requestData.version || "d1d6ea8c8be89d664a07a457526f7128109dee7030fdac424788d762c71ed111",
+      input: {
+        source_image: 'https://replicate.delivery/pbxt/LPsGWNxuQfToPpKfIxIJUrjLVSH3pLeIWMvCNPKx4k8bZoPa/elon.jpeg',
+        target_image: 'https://replicate.delivery/pbxt/LPsGWYhFW03GN2y21RDRlat7YBCVPupkwyEg3Ca0YxcFWYNE/images.jpeg',
+      }
+    };
+
     // 发送请求到 Replicate API
     console.log('发送请求到 Replicate API...');
     const response = await fetch('https://api.replicate.com/v1/predictions', {
       method: 'POST',
       headers: headers,
-      body: JSON.stringify(requestData)
+      body: JSON.stringify(apiRequestBody)
     });
 
     // 获取响应数据
@@ -102,30 +125,30 @@ async function handleApiRequest(request) {
     // 返回响应
     return new Response(
       JSON.stringify(responseData),
-      { 
-        status: response.status, 
-        headers: { 
+      {
+        status: response.status,
+        headers: {
           'Content-Type': 'application/json',
-          ...corsHeaders 
-        } 
+          ...corsHeaders
+        }
       }
     );
-    
+
   } catch (error) {
     // 处理错误
     console.error('代理请求时出错:', error);
-    
+
     return new Response(
-      JSON.stringify({ 
-        error: '处理请求时出错', 
-        details: error.message 
+      JSON.stringify({
+        error: '处理请求时出错',
+        details: error.message
       }),
-      { 
-        status: 500, 
-        headers: { 
+      {
+        status: 500,
+        headers: {
           'Content-Type': 'application/json',
-          ...corsHeaders 
-        } 
+          ...corsHeaders
+        }
       }
     );
   }
