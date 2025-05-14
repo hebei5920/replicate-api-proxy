@@ -74,20 +74,27 @@ async function handleApiRequest(request) {
       );
     }
 
-  
+    // // 检查请求中是否包含必要的base64图像数据
+    // if (!requestData.input || !requestData.input.source_image || !requestData.input.target_image) {
+    //   return new Response(
+    //     JSON.stringify({ error: '请求数据不完整。需要提供source_image和target_image的base64编码。' }),
+    //     {
+    //       status: 400,
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //         ...corsHeaders
+    //       }
+    //     }
+    //   );
+    // }
+
     // 创建请求头
     const headers = {
-      'Authorization': `Bearer r8_OI1uZs9HKgTmsNqbNysYR8GLqlgJxi32ja5T5`,
+      'Authorization': 'Bearer r8_OI1uZs9HKgTmsNqbNysYR8GLqlgJxi32ja5T5',
       'Content-Type': 'application/json'
     };
 
-    // 添加 Prefer 头 (如果需要)
-    if (requestData.prefer === 'wait' || requestData.wait) {
-      headers['Prefer'] = 'wait';
-      // 从请求中删除这些属性，因为它们不是 API 参数
-      delete requestData.prefer;
-      delete requestData.wait;
-    }
+
 
     // 准备发送到Replicate API的请求体
     const apiRequestBody = {
