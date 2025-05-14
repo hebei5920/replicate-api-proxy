@@ -40,6 +40,8 @@ function handleOptions(request) {
 
 // 处理 API 请求
 async function handleApiRequest(request) {
+  console.log("REPLICATE_API_TOKEN", REPLICATE_API_TOKEN);
+
   try {
     // 检查是否设置了 API Token
     if (!REPLICATE_API_TOKEN) {
@@ -88,17 +90,10 @@ async function handleApiRequest(request) {
     //   );
     // }
 
-    // 创建请求头
-    const headers = {
-      'Authorization': 'Bearer r8_OI1uZs9HKgTmsNqbNysYR8GLqlgJxi32ja5T5',
-      'Content-Type': 'application/json'
-    };
-
-
 
     // 准备发送到Replicate API的请求体
     const apiRequestBody = {
-      version: requestData.version || "d1d6ea8c8be89d664a07a457526f7128109dee7030fdac424788d762c71ed111",
+      version: "d1d6ea8c8be89d664a07a457526f7128109dee7030fdac424788d762c71ed111",
       input: {
         source_image: 'https://replicate.delivery/pbxt/LPsGWNxuQfToPpKfIxIJUrjLVSH3pLeIWMvCNPKx4k8bZoPa/elon.jpeg',
         target_image: 'https://replicate.delivery/pbxt/LPsGWYhFW03GN2y21RDRlat7YBCVPupkwyEg3Ca0YxcFWYNE/images.jpeg',
@@ -109,7 +104,10 @@ async function handleApiRequest(request) {
     console.log('发送请求到 Replicate API...');
     const response = await fetch('https://api.replicate.com/v1/predictions', {
       method: 'POST',
-      headers: headers,
+      headers: {
+        'Authorization': 'Bearer r8_OI1uZs9HKgTmsNqbNysYR8GLqlgJxi32ja5T5',
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify(apiRequestBody)
     });
 
