@@ -1,0 +1,9 @@
+name = "replicate-api-proxy"
+main = "index.js"
+compatibility_date = "2023-12-01"
+
+[vars]
+REPLICATE_API_TOKEN = "r8_OI1uZs9HKgTmsNqbNysYR8GLqlgJxi32ja5T5"
+
+
+[env.production]
